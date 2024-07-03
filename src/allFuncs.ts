@@ -12,6 +12,7 @@ import {
 import {
     DataV2,
     createCreateMetadataAccountV3Instruction,
+    createUpdateMetadataAccountV2Instruction,
     createCreateMetadataAccountV2Instruction,
 } from "@metaplex-foundation/mpl-token-metadata"
 import { AccountLayout, TOKEN_PROGRAM_ID, createMint, getAccount, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
@@ -133,7 +134,7 @@ export async function transferTokenFunc(connection: web3.Connection, fromWallet:
 
 }
 
-export async function createTokenMetadata(
+export async function createTokenMetadataFunc(
     connection: web3.Connection, metaplex: Metaplex, mint: web3.PublicKey, user: web3.Keypair, name: string, symbol: string, description: string
 ) {
 
@@ -174,9 +175,56 @@ export async function createTokenMetadata(
     const transaction = new web3.Transaction();
     transaction.add(instruction);
 
-    const txSign = await web3.sendAndConfirmTransaction(connection , transaction , [user]);
+    const txSign = await web3.sendAndConfirmTransaction(connection, transaction, [user]);
 
-    console.log("Token Metadata added ====> " , txSign);
-    
+    console.log("Token Metadata added ====> ", txSign);
+
+
+}
+
+export async function updateTokenMetadataFunc( connection: web3.Connection, metaplex: Metaplex, mint: web3.PublicKey, user: web3.Keypair, name: string, symbol: string, description: string
+) {
+
+    const buffer = fs.readFileSync('assets/avatar2.png');
+    const file = toMetaplexFile(buffer, 'avatar2.png');
+
+
+    const imageUrl = await metaplex.storage().upload(file)
+    console.log("Token Image Url ===> ", imageUrl);
+
+    const { uri } = await metaplex.nfts().uploadMetadata({
+        name: name, description: description, image: imageUrl
+    }).run()
+
+    console.log("Metadata uri =====> ", uri);
+
+    const tokenMetadataPDA = await findMetadataPda(mint);
+
+    const tokenMetadata =
+        {
+            name: name, symbol: symbol, uri: uri, sellerFeeBasisPoints: 0, creators: null, collection: null, uses: null
+        } as DataV2
+
+    const instruction = createUpdateMetadataAccountV2Instruction({
+        metadata: tokenMetadataPDA,
+        updateAuthority: user.publicKey
+    },
+        {
+            updateMetadataAccountArgsV2: {
+                data: tokenMetadata,
+                updateAuthority:user.publicKey,
+                primarySaleHappened:true,
+                isMutable: true,
+            }
+        }
+    )
+
+    const transaction = new web3.Transaction();
+    transaction.add(instruction);
+
+    const txSign = await web3.sendAndConfirmTransaction(connection, transaction, [user]);
+
+    console.log("Token Metadata added ====> ", txSign);
+
 
 }

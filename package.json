@@ -7,7 +7,7 @@
   "dependencies": {
     "@solana/spl-token": "^0.4.7",
     "@solana/web3.js": "^1.94.0",
-    "@metaplex-foundation/js": "^0.15.0",
+    "@metaplex-foundation/js": "^0.19.4",
     "dotenv": "^16.4.5"
   },
   "scripts": {

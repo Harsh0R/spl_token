@@ -113,7 +113,7 @@ export async function showAllMintedFunc(connection: web3.Connection, user: any) 
     })
 }
 
-export async function transferTokenFunc(connection: web3.Connection, fromWallet: web3.Keypair, fromTokenAccount: any, toWallet: web3.PublicKey, mint: web3.PublicKey) {
+export async function transferTokenFunc(connection: web3.Connection, fromWallet: web3.Keypair, fromTokenAccount: any, toWallet: web3.PublicKey, mint: web3.PublicKey , amount:number) {
     // Mint 1 new token to the "fromTokenAccount" account we just created
     const toTokenAccount = await getOrCreateAssociatedTokenAccount(connection, fromWallet, mint, toWallet);
 
@@ -125,7 +125,7 @@ export async function transferTokenFunc(connection: web3.Connection, fromWallet:
         fromTokenAccount.address,
         toTokenAccount.address,
         fromWallet.publicKey,
-        690000000000
+        amount
     );
 
 
@@ -147,7 +147,9 @@ export async function createTokenMetadataFunc(
 
     const { uri } = await metaplex.nfts().uploadMetadata({
         name: name, description: description, image: imageUrl
-    }).run()
+    })
+    // for lower version
+    // }).run()
 
     console.log("Metadata uri =====> ", uri);
 
@@ -182,11 +184,11 @@ export async function createTokenMetadataFunc(
 
 }
 
-export async function updateTokenMetadataFunc( connection: web3.Connection, metaplex: Metaplex, mint: web3.PublicKey, user: web3.Keypair, name: string, symbol: string, description: string
+export async function updateTokenMetadataFunc(connection: web3.Connection, metaplex: Metaplex, mint: web3.PublicKey, user: web3.Keypair, name: string, symbol: string, description: string
 ) {
 
-    const buffer = fs.readFileSync('assets/avatar2.png');
-    const file = toMetaplexFile(buffer, 'avatar2.png');
+    const buffer = fs.readFileSync('assets/XOsX.gif');
+    const file = toMetaplexFile(buffer, 'XOsX.gif');
 
 
     const imageUrl = await metaplex.storage().upload(file)
@@ -194,7 +196,7 @@ export async function updateTokenMetadataFunc( connection: web3.Connection, meta
 
     const { uri } = await metaplex.nfts().uploadMetadata({
         name: name, description: description, image: imageUrl
-    }).run()
+    })
 
     console.log("Metadata uri =====> ", uri);
 
@@ -212,8 +214,8 @@ export async function updateTokenMetadataFunc( connection: web3.Connection, meta
         {
             updateMetadataAccountArgsV2: {
                 data: tokenMetadata,
-                updateAuthority:user.publicKey,
-                primarySaleHappened:true,
+                updateAuthority: user.publicKey,
+                primarySaleHappened: true,
                 isMutable: true,
             }
         }
@@ -226,5 +228,77 @@ export async function updateTokenMetadataFunc( connection: web3.Connection, meta
 
     console.log("Token Metadata added ====> ", txSign);
 
+
+}
+
+export async function mintNFTFunc(
+    connection: web3.Connection, metaplex: Metaplex, mint: web3.PublicKey, user: web3.Keypair, name: string, symbol: string, description: string
+) {
+
+    const buffer = fs.readFileSync('assets/XOsX.gif');
+    const file = toMetaplexFile(buffer, 'XOsX.gif');
+
+
+    const imageUrl = await metaplex.storage().upload(file)
+    console.log("Token Image Url ===> ", imageUrl);
+
+    const { uri } = await metaplex.nfts().uploadMetadata({
+        name: name, description: description, image: imageUrl
+    })
+
+    console.log("Metadata uri =====> ", uri);
+
+    const { nft } = await metaplex
+        .nfts()
+        .create({
+            uri: uri,
+            name: name,
+            sellerFeeBasisPoints: 100,
+            symbol: symbol,
+        })
+
+    console.log(
+        `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
+    )
+
+    console.log("nft ====>>> ", nft);
+
+}
+
+export async function updateNFTFunc(
+    connection: web3.Connection, metaplex: Metaplex, mint: web3.PublicKey, user: web3.Keypair, name: string, symbol: string, description: string
+) {
+
+
+    // const buffer = fs.readFileSync('assets/XOsX.gif');
+    // const file = toMetaplexFile(buffer, 'XOsX.gif');
+
+
+    // const imageUrl = await metaplex.storage().upload(file)
+    // console.log("Token Image Url ===> ", imageUrl);
+
+    // const { uri } = await metaplex.nfts().uploadMetadata({
+    //     name: name, description: description, image: imageUrl
+    // }).run()
+
+    // const nft = await metaplex.nfts().findAllByMintList({ mint })
+
+    // await metaplex
+    //     .nfts()
+    //     .update({
+    //         nftOrSft: nft,
+    //         name: tokenName,
+    //         symbol: symbol,
+    //         uri: uri,
+    //         sellerFeeBasisPoints: sellerFeeBasisPoints,
+    //     })
+
+
+
+    // console.log(
+    //     `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
+    // )
+
+    // console.log("nft ====>>> ", nft);
 
 }

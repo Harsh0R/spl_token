@@ -36,9 +36,11 @@ export async function initializeKeypair(
     const secretKey = Uint8Array.from(secret)
     const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
 
+    
+    // If secrete is in string formet
     // const keypairFromSecretKey = web3.Keypair.fromSecretKey(
     //   bs58.default.decode(
-    //     "skJMFYhy9tSnPDQFg9pYWeJE6f2NRe1wm33WePT33zg8mmtRtHPZPKSrgZ8m4BAC2CLA96xP8XyxHQYjdd9B8Vw"
+    //     'process.env.PRIVATE_KEY'
     //   )
     // );
 
